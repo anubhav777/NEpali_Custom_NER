@@ -38,3 +38,61 @@ def word_filter(word):
         return_word = False
 
     return return_word
+
+def int_pair(arr):
+    j=0
+    cunt=[]
+    
+    if len(arr) != 0:
+        for i in range(int(len(arr)/2)):
+            tr=(arr[j],arr[j+1],'Jilla Prahari Karyalaya')
+            cunt.append(tr)
+            
+            j+=2
+    return cunt
+
+def word_indent(arr):
+    a = arr
+    b = []          
+    c =[]
+    
+    for i in a:
+            for j in a:
+                if i[1] - j[0] == -2:
+                    if i[1] not in b:
+                        b.append(i[1])
+
+                    if j[0] not in b:
+                        b.append(j[0])
+
+                    if i[0] not in c:
+                        c.append(i[0])
+
+                    if j[1] not in c:
+                        c.append(j[1])
+    db = int_pair(sorted(list(set(c) - set(b))))
+    return db
+
+def word2vec(word):
+    from collections import Counter
+    from math import sqrt
+
+    # count the characters in word
+    cw = Counter(word)
+    # precomputes a set of the different characters
+    sw = set(cw)
+    # precomputes the "length" of the word vector
+    lw = sqrt(sum(c*c for c in cw.values()))
+
+    # return a tuple
+    return cw, sw, lw
+
+def cosdis(v1, v2):
+    # which characters are common to the two words?
+    common = v1[1].intersection(v2[1])
+    if v1[2] != 0 and v2[2] != 0:
+        
+        # by definition of cosine distance we have
+        return sum(v1[0][ch]*v2[0][ch] for ch in common)/v1[2]/v2[2]
+    else:
+        return False
