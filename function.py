@@ -1,4 +1,5 @@
 import re
+global_arr=[]
 
 def nepali_number(word):
     ret_word=re.sub(r'[^a-z0-9 ]+','',word)
@@ -96,3 +97,58 @@ def cosdis(v1, v2):
         return sum(v1[0][ch]*v2[0][ch] for ch in common)/v1[2]/v2[2]
     else:
         return False
+    
+
+def new_text_finder(link):
+    num_array=[]
+    gh = link
+    new_text = nr.romanize_text(link)
+    new_text = nepali_number(new_text)
+    top=new_text.split(" ")
+    threshold = 0.80 
+    
+#     new_l= list(set(top) & set(newarr))
+  
+            # if needed
+    for key in new_arr:
+        for word in top:
+
+            try:
+              
+
+                res = cosdis(word2vec(word), word2vec(key))
+                if res != False:
+  
+                    if res > threshold:
+
+                        pattern = re.compile(rf'{key}[a-z]+')
+                        if pattern.match(word):
+                            new_text = re.sub(pattern, key, new_text)
+            except IndexError:
+                pass
+#     print(new_text)
+#     print(gh)
+
+    
+    
+
+    for i in new_text.split(" "):
+        if i in new_arr:
+            res = [[ele.start(), ele.end() - 1] for ele in re.finditer(rf"{i}", new_text)]
+            blo=[txt for txt in re.finditer(rf"{i}", new_text)]
+            if num_array == None:
+                num_array = res
+               
+            else:
+                for j in res:
+                    if j not in num_array:
+                        num_array.append(j)
+
+    m=sorted(num_array)
+
+    word_value=word_indent(m)
+    
+    if word_value != []:
+        app_arr=[new_text,word_value]
+        global_arr.append(app_arr)
+    return word_value

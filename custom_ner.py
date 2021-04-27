@@ -34,7 +34,19 @@ for i in range(7):
         
     else:
         all_df = pd.concat([filt_df,all_df],ignore_index=True)
+with open('filtered.json') as json_file:
+    ol_data = json.load(json_file)
 
+ train_text=[]
+train_ent=[]
+
+for i in range(len(data)):
+
+    train_text.append(data[i][0])
+    train_ent.append({'entities':data[i][1]})
+
+train_data=list(zip(train_text,train_ent))
+   
 for i in range(len(all_df)):
     new_inp=all_df.iloc[i]['name']
     new_value = nr.romanize_text(new_inp)
@@ -42,61 +54,59 @@ for i in range(len(all_df)):
     all_df.iloc[i]['name'] = new_text
     all_df.iloc[i]['phone'] = 'Jilla Prahari Karyalaya'
 
-new_df= all_df.copy()
+    new_df= all_df.copy()
 
-new_df.to_csv(r'./new_data.csv')   
+    new_df.to_csv(r'./new_data.csv')   
 
-global_arr=[]
-def new_text_finder(link):
-    num_array=[]
-    gh = link
-    new_text = nr.romanize_text(link)
-    new_text = nepali_number(new_text)
-    top=new_text.split(" ")
-    threshold = 0.90 
-    
-#     new_l= list(set(top) & set(newarr))
-  
-            # if needed
-    for key in new_arr:
-        for word in top:
-
-            try:
-              
-
-                res = cosdis(word2vec(word), word2vec(key))
-                if res != False:
-  
-                    if res > threshold:
-
-                        pattern = re.compile(rf'{key}[a-z]+')
-                        if pattern.match(word):
-                            new_text = re.sub(pattern, key, new_text)
-            except IndexError:
-                pass
-#     print(new_text)
-#     print(gh)
-
-    
-    
-
-    for i in new_text.split(" "):
-        if i in new_arr:
-            res = [[ele.start(), ele.end() - 1] for ele in re.finditer(rf"{i}", new_text)]
-            blo=[txt for txt in re.finditer(rf"{i}", new_text)]
-            if num_array == None:
-                num_array = res
-               
+        
+    filt_arr=[]
+    nlp=spacy.blank('en')
+    db = DocBin()
+    i=0
+    excel_arr=[]
+    for text, annot in tqdm(train_data): # data in previous format
+        doc = nlp.make_doc(text) # create doc object from text
+        ents = []
+        clean_txt = []
+        for start, end, label in annot["entities"]: # add character indexes
+            new_end= end+1
+            span = doc.char_span(start, new_end, label=label, alignment_mode="contract")
+            if span is None:
+                print("Skipping entity")
             else:
-                for j in res:
-                    if j not in num_array:
-                        num_array.append(j)
-
-    m=sorted(num_array)
-
-    word_value=word_indent(m)
-    
-    if word_value != []:
-        app_arr=[new_text,word_value]
-        global_arr.append(app_arr)
-    return word_value
+                
+    #             if len(span) >= 1:
+    #                 second_ents.append(span)
+                    
+                
+                if " " in str(span):
+                    txt = str(span)
+                    # ents.append(span)
+                    if any(word in txt for word in common_words):
+                    pattern = re.compile(r'[a-z]+\s[a-z]+\s[a-z]{3}')
+                    if pattern.match(txt):
+                        if txt not in rem_words:
+                        if 'prahari' in txt:
+                            if len(clean_txt) == 0:
+                            new_ent=({'entities': [[start, end, 'Jilla Prahari Karyalaya']]})
+                            arr=[text,new_ent]
+                            clean_txt = arr
+                            excel_arr.append(txt)
+                            print(txt)
+                            else:
+                            add_ent=[start, end, 'Jilla Prahari Karyalaya']
+                            clean_txt[1]['entities'].append(add_ent)
+                            excel_arr.append(txt)
+                            
+                            
+                            
+        if len(clean_txt) != 0:
+            filt_arr.append(clean_txt)
+        
+        i+=1
+    #     if ents!= []:
+        
+    #         doc.ents = ents # label the text with the ents
+    #         db.add(doc)
+    #     i+=1
+    # db.to_disk("./data/train.spacy")
