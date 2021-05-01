@@ -17,6 +17,22 @@ from function import *
 
 nlp = spacy.load("en_core_web_sm")
 
+cities=[]
+rom_cities=[]
+
+web_scrap('https://en.wikipedia.org/wiki/List_of_cities_in_Nepal')
+web_scrap('https://en.wikipedia.org/wiki/List_of_gaunpalikas_of_Nepal')
+
+
+with open('cities.json','w',encoding='utf-8') as outfile:
+    json.dump(cities,outfile,ensure_ascii=False)
+
+with open('data.json') as json_file:
+    data = json.load(json_file) 
+
+for i in cities:
+    new_txt=nr.romanize_text(i)
+    rom_cities.append(new_txt)
 #all excel file reader
 xls = pd.ExcelFile('phone-number-2077-09-15.xlsx')
 all_df=None

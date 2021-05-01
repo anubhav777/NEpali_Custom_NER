@@ -152,3 +152,22 @@ def new_text_finder(link):
         app_arr=[new_text,word_value]
         global_arr.append(app_arr)
     return word_value
+
+def web_scrap(src):
+    
+    source=requests.get(src).text
+    soup= BeautifulSoup(source,"html.parser")
+    parent= soup.find_all('table',class_='wikitable sortable')
+    
+    for j in range(len(parent)):
+        child = parent[j].find_all('tr')
+        for i in range(len(child)):
+            if i != 0:
+                all_td = child[i].find_all('td')[2].text
+                new_txt = re.sub(r'\n','',all_td)
+                if new_txt not in cities:
+                    
+                    cities.append(new_txt)
+                else:
+                    print('found')
+  
