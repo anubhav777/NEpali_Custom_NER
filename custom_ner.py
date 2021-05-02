@@ -126,3 +126,10 @@ for i in range(len(all_df)):
     #         db.add(doc)
     #     i+=1
     # db.to_disk("./data/train.spacy")
+rom_cities=[]
+for i in cities:
+    new_txt=nr.romanize_text(i)
+    rom_cities.append(new_txt)
+
+with open('rom_cities.json','w',encoding='utf-8') as outfile:
+    json.dump(rom_cities,outfile,ensure_ascii=False)

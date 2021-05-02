@@ -1,5 +1,8 @@
 import re
+import nepali_roman as nr
 global_arr=[]
+hospital_common=['अस्पताल','केन्द्र','गृह','औषधालय','आयुर्वेद','स्वास्थ्यकेन्द्र']
+all_hospitals=[]
 
 def nepali_number(word):
     ret_word=re.sub(r'[^a-z0-9 ]+','',word)
@@ -170,4 +173,42 @@ def web_scrap(src):
                     cities.append(new_txt)
                 else:
                     print('found')
-  
+def comm_check(string):
+    words = string.split(" ")
+    for w in words:
+        if w in hospital_common:
+            if words[-1] in cities:
+                
+                new_text=string.rsplit(' ', 1)[0]
+                all_hospitals.append(new_text)
+                
+            else:               
+                all_hospitals.append(string)
+            break;
+
+
+def hospital_finder():
+    source=requests.get(f'https://ne.wikipedia.org/wiki/नेपालका_अस्पतालहरू').text
+    soup= BeautifulSoup(source,"html.parser")
+    parent= soup.find('div',{'class':'mw-parser-output'})
+    child= parent.find_all('p')
+    for i in child:
+        poss = i.find_all('a')
+
+        if poss == None:
+             comm_check(i.text)
+             
+        
+        else:
+            if len(poss) == 1:
+                
+                comm_check(poss[0].text)
+            elif len(poss) > 1:
+                
+                  for j in poss:
+                        if ',' in j.text:
+                            old_text = j.text.split(",")
+                            new_text = old_text[0]
+                            comm_check(new_text)
+                        else:
+                            comm_check(j.text)
