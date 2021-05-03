@@ -133,3 +133,74 @@ for i in cities:
 
 with open('rom_cities.json','w',encoding='utf-8') as outfile:
     json.dump(rom_cities,outfile,ensure_ascii=False)
+
+with open('hospital.json',encoding="utf8") as json_file:
+    hospital = json.load(json_file)
+
+new_arr=[]
+for i in result:
+    ins_arr=[i,[]]
+    new_arr.append(ins_arr)
+
+#hospital entity
+for i in range(len(new_arr)):
+    for j in hospital:
+        if j in new_arr[i][0]:
+             res = [[ele.start(), ele.end() - 1] for ele in re.finditer(rf"{j}", new_arr[i][0])]
+             new_val=[res[0][0],res[0][1],"Nepal Hospital"]
+             if new_val not in new_arr[i]:
+                 new_arr[i][1].append(new_val)
+                 
+            
+
+            
+#              print(res[0])
+
+#gaaunpalika nagarpaalika mahaanagarapalika entry
+for i in range(len(new_arr)):
+    new_text = new_arr[i][0]
+    top = new_text.split(" ")
+    for j in range(len(top)):
+        if top[j] == 'gaaunpaalikaa'or top[j] == 'nagrapaalika' or top[j] == 'mahaanagarapaalikaa':
+            if j > 0:
+                res = [[ele.start(), ele.end() - 1] for ele in re.finditer(rf"{top[j-1]} {top[j]}", new_arr[i][0])]
+                if len(res) == 1:        
+                    new_val=[res[0][0],res[0][1],"gaaunpaalikaa/nagrapaalika/mahaanagarapaalikaa"]
+                    if new_val not in new_arr[i]:
+                         new_arr[i][1].append(new_val)
+                else:
+                    for k in range(len(res)):                 
+                        new_val=[res[k][0],res[k][1],"gaaunpaalikaa/nagrapaalika/mahaanagarapaalikaa"]
+                        if new_val not in new_arr[i]:
+                             new_arr[i][1].append(new_val)
+                    print(i)
+
+#cities entity
+try_ar=[]
+for i in range(len(new_arr)):
+    new_text = new_arr[i][0]
+    top = new_text.split(" ")
+    
+    for j in range(len(top)):
+        
+        if top[j] in rom_cities:
+            if j != (len(top)-1):
+                if top[j+1] != 'gaaunpaalikaa' and top[j+1] != 'nagrapaalika' and top[j+1] != 'mahaanagarapaalikaa':
+                     res = [[ele.start(), ele.end() - 1] for ele in re.finditer(rf"{top[j]}", new_arr[i][0])] 
+                     if len(res) == 1:        
+                        new_val=[res[0][0],res[0][1],"Nepal cities"]
+                        if new_val not in new_arr[i]:
+                             new_arr[i][1].append(new_val)
+                     else:
+                        start = []
+                        end = []
+                        for l in range(len(new_arr[i][1])):
+                            start.append(new_arr[i][1][l][0])
+                            end.append(new_arr[i][1][l][1])
+                        print(start,end,i)  
+                        for k in range(len(res)):                 
+                            new_val=[res[k][0],res[k][1],"Nepal cities"]
+                            if res[k][0] not in start and res[k][1] not in end:
+                                if new_val not in new_arr[i]:
+                                     new_arr[i][1].append(new_val)
+                                            
