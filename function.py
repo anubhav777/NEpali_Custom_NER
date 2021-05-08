@@ -1,20 +1,37 @@
 import re
 import nepali_roman as nr
-global_arr=[]
-hospital_common=['अस्पताल','केन्द्र','गृह','औषधालय','आयुर्वेद','स्वास्थ्यकेन्द्र']
-all_hospitals=[]
+from web_scrape import Web_scrape
 
-def nepali_number(word):
-    ret_word=re.sub(r'[^a-z0-9 ]+','',word)
-    return_word=re.sub("\s\s*" , " ", ret_word)
-    return_word=return_word.strip()
+def excel_reader:
+    xls = pd.ExcelFile('phone-number-2077-09-15.xlsx')
+    all_df=None
+
+    for i in range(7):
+        new_df=None
+        value = i +1
+        name= f'{value} No. State'
+        
+        new_df = pd.read_excel(xls, value)
+        filt_df=new_df[['name', 'phone']]
+        
+        if i == 0: 
+            all_df = filt_df
+            
+        else:
+            all_df = pd.concat([filt_df,all_df],ignore_index=True)
+    return all_df
+
+def nepali_word_filter(word):
+    ret_word = re.sub(r'[^a-z0-9 ]+','',word)
+    return_word = re.sub("\s\s*" , " ", ret_word)
+    return_word = return_word.strip()
 
     return return_word
 
 def word_filter(word):
-    new_word=None
-    return_word=None
-    asd=['०','१','२','३','४','५','६','७','८','९']
+    new_word = None
+    return_word = None
+    asd = ['०','१','२','३','४','५','६','७','८','९']
     try:
         word=word.replace('.kaa ','karyalayaa ')
         word=word.replace('pra.','prahari ')
@@ -30,30 +47,30 @@ def word_filter(word):
             pass
     if 'prahari' in word:
 
-        new_word=re.sub(r'[a-z]*\.','',word)
+        new_word = re.sub(r'[a-z]*\.','',word)
         if "(" in new_word:
-            new_word=new_word.replace("(","")
+            new_word = new_word.replace("(","")
         elif ")" in new_word:
-            new_word=new_word.replace(")","")
+            new_word = new_word.replace(")","")
             
         
-        return_word = nepali_number(new_word)
+        return_word = nepali_word_filter(new_word)
     else:
         return_word = False
 
     return return_word
 
 def int_pair(arr):
-    j=0
-    cunt=[]
+    j = 0
+    new_arr = []
     
     if len(arr) != 0:
         for i in range(int(len(arr)/2)):
-            tr=(arr[j],arr[j+1],'Jilla Prahari Karyalaya')
-            cunt.append(tr)
+            tr = (arr[j],arr[j+1],'Jilla Prahari Karyalaya')
+            new_arr.append(tr)
             
-            j+=2
-    return cunt
+            j += 2
+    return new_arr
 
 def word_indent(arr):
     a = arr
@@ -102,23 +119,17 @@ def cosdis(v1, v2):
         return False
     
 
-def new_text_finder(link):
+def text_finder(link):
     num_array=[]
     gh = link
     new_text = nr.romanize_text(link)
-    new_text = nepali_number(new_text)
+    new_text = nepali_word_filter(new_text)
     top=new_text.split(" ")
     threshold = 0.80 
-    
-#     new_l= list(set(top) & set(newarr))
-  
-            # if needed
+
     for key in new_arr:
         for word in top:
-
             try:
-              
-
                 res = cosdis(word2vec(word), word2vec(key))
                 if res != False:
   
@@ -129,11 +140,6 @@ def new_text_finder(link):
                             new_text = re.sub(pattern, key, new_text)
             except IndexError:
                 pass
-#     print(new_text)
-#     print(gh)
-
-    
-    
 
     for i in new_text.split(" "):
         if i in new_arr:
@@ -156,59 +162,57 @@ def new_text_finder(link):
         global_arr.append(app_arr)
     return word_value
 
-def web_scrap(src):
-    
-    source=requests.get(src).text
-    soup= BeautifulSoup(source,"html.parser")
-    parent= soup.find_all('table',class_='wikitable sortable')
-    
-    for j in range(len(parent)):
-        child = parent[j].find_all('tr')
-        for i in range(len(child)):
-            if i != 0:
-                all_td = child[i].find_all('td')[2].text
-                new_txt = re.sub(r'\n','',all_td)
-                if new_txt not in cities:
-                    
-                    cities.append(new_txt)
-                else:
-                    print('found')
-def comm_check(string):
-    words = string.split(" ")
-    for w in words:
-        if w in hospital_common:
-            if words[-1] in cities:
-                
-                new_text=string.rsplit(' ', 1)[0]
-                all_hospitals.append(new_text)
-                
-            else:               
-                all_hospitals.append(string)
-            break;
+
+def resources_executer():
+    cities = Web_scrape('https://en.wikipedia.org/wiki/List_of_cities_in_Nepal').city_scraper()
+    hospitals = Web_scrape('https://ne.wikipedia.org/wiki/नेपालका_अस्पतालहरू').hospital_finder()
+    bank = Web_scrape('https://ne.wikipedia.org/wiki/नेपालका_बैङ्कहरूको_सूची').hospital_finder()
+
+def spacy_zip(arr):
+    train_text=[]
+    train_ent=[]
+
+    for i in range(len(new_arr)):
+
+        train_text.append(new_arr[i][0])
+        train_ent.append({'entities':new_arr[i][1]})
+
+    train_data=list(zip(train_text,train_ent))
+
+    return train_data
 
 
-def hospital_finder():
-    source=requests.get(f'https://ne.wikipedia.org/wiki/नेपालका_अस्पतालहरू').text
-    soup= BeautifulSoup(source,"html.parser")
-    parent= soup.find('div',{'class':'mw-parser-output'})
-    child= parent.find_all('p')
-    for i in child:
-        poss = i.find_all('a')
-
-        if poss == None:
-             comm_check(i.text)
-             
+def spacy_trainer(train_data, filename):
+    nlp=spacy.blank('en')
+    db = DocBin()
+    i=0
+    for text, annot in tqdm(train_data): # data in previous format
+        doc = nlp.make_doc(text) # create doc object from text
+        ents = []
         
-        else:
-            if len(poss) == 1:
+        for start, end, label in annot["entities"]: # add character indexes
+        
+            new_end=end+1
+            span = doc.char_span(start, new_end, label=label, alignment_mode="contract")
+            if span is None:
+                print("Skipping entity")
+            else:
                 
-                comm_check(poss[0].text)
-            elif len(poss) > 1:
+    #             if len(span) >= 1:
+    #                 second_ents.append(span)
+                    
                 
-                  for j in poss:
-                        if ',' in j.text:
-                            old_text = j.text.split(",")
-                            new_text = old_text[0]
-                            comm_check(new_text)
-                        else:
-                            comm_check(j.text)
+                if " " in str(span):
+                    
+                    ents.append(span)
+        
+        i+=1
+        if ents!= []:
+            
+            doc.ents = ents 
+            db.add(doc)
+        
+    db.to_disk(f"./data/{filename}")
+
+
+
