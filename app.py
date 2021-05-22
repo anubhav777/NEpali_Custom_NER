@@ -1,14 +1,17 @@
+from routes import *
 import spacy
 from tqdm import tqdm
 from spacy.tokens import DocBin
 import json
 import re
+from flask import Flask
 
-new_arr=[]
 
-with open('all_filtered.json') as json_file:
-        filt_data = json.load(json_file)
-    
-for i in filt_data:
-  if len(i[1]) != 0 :
-    new_arr.append(i)
+app = Flask(__name__)
+
+
+app.config.from_object('config.Development')
+
+
+if __name__ == "__main__":
+    app.run(debug=True)
